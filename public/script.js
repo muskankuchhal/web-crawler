@@ -64,7 +64,7 @@ function appendMessage(message, sender) {
 }
 
 function searchInContent(content, question) {
-    console.log("Muskan content yeh aaya hai", content);
+    console.log("Muskan content yeh aaya hai", content.body.get);
     const lowerQuestion = question.toLowerCase();
     const sentences = content.split('. ');
 

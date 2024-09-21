@@ -72,7 +72,7 @@ async function startChatbot() {
 
     while (true) {
         const question = readline.question('You: ');
-
+        hf.retrievalAugmentedGeneration
         if (question.toLowerCase() === 'exit') {
             console.log('Chatbot: Goodbye!');
             break;

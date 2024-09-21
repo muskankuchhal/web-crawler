@@ -80,8 +80,7 @@ async function startCrawling(baseUrl) {
 app.post('/crawl', async (req, res) => {
     const { url } = req.body;
     console.log("Muskan crawling url" + url);
-    const content = await startCrawling(url);
-    
+    const content = await startCrawling(url); 
     res.json({ content });
 });
 

@@ -8,31 +8,35 @@ const url = require('url');
 
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
-// Replace with your Gemini API key
-const GEMINI_API_KEY = 'AIzaSyDQ-GPa2Ukrx_vNrRdPjB3_U5kEJ-le5-k';
-const crawledUrls = new Set(); // To keep track of visited URLs
+const GEMINI_API_KEY = 'AIzaSyChrQgfRDdNinm6Sv9hN9R9ZAvQQiGvs74';
+const crawledUrls = new Set();
 let allContent = ''; 
 
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
 function removeHash(url) {
-    const parsedUrl = new URL(url);
-    return parsedUrl.origin + parsedUrl.pathname + parsedUrl.search;
+    try{
+        const parsedUrl = url.split('#')[0];
+        console.log("parsedURL" + parsedUrl);
+        return parsedUrl;
+    }
+    catch(e){
+        return url;
+    }
 }
 
 async function crawl(baseUrl, currentUrl, depth) {
     if (depth === 0 || crawledUrls.has(currentUrl)) {
-        return ''; // Stop if depth limit is reached or URL has already been visited
+        return ''; 
     }
 
     try {
         const response = await axios.get(currentUrl);
         const $ = cheerio.load(response.data);
 
-        // Remove unwanted elements
         $('script').remove();
         $('style').remove();
         $('header').remove();
@@ -41,40 +45,32 @@ async function crawl(baseUrl, currentUrl, depth) {
         $('nav').remove();
         $('aside').remove();
 
-        // Get the cleaned text content
         const content = $('body').text().trim().replace(/\s+/g, ' ');
         console.log(currentUrl);
-        console.log(content.slice(100,150));
-        console.log("\n");
         allContent += content;
-        // Add the current URL to the set of visited URLs
         crawledUrls.add(currentUrl);
 
-        // Extract and visit links within the same base URL
         $('a[href]').each((index, element) => {
             const href = $(element).attr('href');
-            const absoluteUrl = url.resolve(baseUrl, href); // Create absolute URL
-<<<<<<< HEAD
-            absoluteUrl = removeHash(url);
-            console.log("absoluteUrl", absoluteUrl);
-=======
->>>>>>> 3272e52 (issue fixes)
+            console.log("href", href);
+            const abc = url.resolve(baseUrl, href); // Create absolute URL
+            const absoluteUrl= removeHash(abc);
+
             // Only crawl if the URL is within the same base URL
             if (!crawledUrls.has(absoluteUrl)) {
                 crawl(baseUrl, absoluteUrl, depth - 1); // Recursive call with reduced depth
             }
         });
 
-        return content;
+        return allContent;
     } catch (error) {
         console.error(`Error fetching ${currentUrl}: ${error.message}`);
         return '';
     }
 }
 
-// Example of using the crawl function
 async function startCrawling(baseUrl) {
-    const content = await crawl(baseUrl, baseUrl, 1); // Start crawling with a depth of 2
+    const content = await crawl(baseUrl, baseUrl, 1);
     const size = Buffer.byteLength(allContent, 'utf8');
     console.log('Crawled content:', size);
     return allContent;
@@ -85,31 +81,35 @@ app.post('/crawl', async (req, res) => {
     const { url } = req.body;
     console.log("Muskan crawling url" + url);
     const content = await startCrawling(url);
+    
     res.json({ content });
 });
 
-// Endpoint to ask a question using the crawled content with Gemini API
+
 app.post('/ask', async (req, res) => {
-    const { question, context } = req.body;
-
-    try {
-        const response = await axios.post('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}', {
-            question: question,
-            context: context,
-        }, {
-            headers: {
-                'Authorization': `Bearer ${GEMINI_API_KEY}`,
-                'Content-Type': 'application/json',
-            },
-        });
-
-        const answer = response.data.answer; // Adjust based on actual API response structure
-        res.json({ answer });
-    } catch (error) {
-        console.error(`Error answering question: ${error.message}`);
-        res.status(500).json({ error: 'Error processing your question' });
-    }
+    const { question, crawledContent } = req.body;
+    console.log('Ques in server', question);
+    console.log('Context in server', crawledContent);
+    const answer = await getLLMResponse(question, crawledContent);
+    console.log("Response:", answer);
 });
+
+async function getLLMResponse(question, context) {
+    
+    const response = await axios.post('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}',{
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          contents: [{ 
+            role: "user", 
+            parts: [{ text: question }] 
+          }] 
+        }),
+      });
+
+    return response.data.choices[0].message.content.trim(); // Adjust according to your API response
+}
+
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));

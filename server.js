@@ -18,9 +18,13 @@ let allContent = '';
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
+function removeHash(url) {
+    const parsedUrl = new URL(url);
+    return parsedUrl.origin + parsedUrl.pathname + parsedUrl.search;
+}
+
 async function crawl(baseUrl, currentUrl, depth) {
     if (depth === 0 || crawledUrls.has(currentUrl)) {
-        console.log("stop ho gya");
         return ''; // Stop if depth limit is reached or URL has already been visited
     }
 
@@ -50,7 +54,8 @@ async function crawl(baseUrl, currentUrl, depth) {
         $('a[href]').each((index, element) => {
             const href = $(element).attr('href');
             const absoluteUrl = url.resolve(baseUrl, href); // Create absolute URL
-
+            absoluteUrl = removeHash(url);
+            console.log("absoluteUrl", absoluteUrl);
             // Only crawl if the URL is within the same base URL
             if (!crawledUrls.has(absoluteUrl)) {
                 crawl(baseUrl, absoluteUrl, depth - 1); // Recursive call with reduced depth

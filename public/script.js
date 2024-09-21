@@ -30,14 +30,28 @@ crawlButton.addEventListener('click', async () => {
     }
 });
 
-askButton.addEventListener('click', () => {
-    console.log("Muskan ask clicked");
+askButton.addEventListener('click', async() => {
+    console.log("Ask btn clicked");
     const question = questionInput.value;
     if (!question || !crawledContent) return;
 
     appendMessage(`You: ${question}`, 'user');
-    console.log("Muskan ask clicked question", question);
-    const answer = searchInContent(crawledContent, question);
+    try {
+        const response = await fetch('/ask', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ question, crawledContent }),
+        });
+        const answer = await response.json();
+
+        askButton.disabled = false;
+    } catch (error) {
+        appendMessage(`Error: ${error.message}`, 'bot');
+    }
+    // console.log("Muskan ask clicked question", question);
+    // const answer = searchInContent(crawledContent, question);
     appendMessage(`Bot: ${answer}`, 'bot');
 });
 

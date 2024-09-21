@@ -54,8 +54,11 @@ async function crawl(baseUrl, currentUrl, depth) {
         $('a[href]').each((index, element) => {
             const href = $(element).attr('href');
             const absoluteUrl = url.resolve(baseUrl, href); // Create absolute URL
+<<<<<<< HEAD
             absoluteUrl = removeHash(url);
             console.log("absoluteUrl", absoluteUrl);
+=======
+>>>>>>> 3272e52 (issue fixes)
             // Only crawl if the URL is within the same base URL
             if (!crawledUrls.has(absoluteUrl)) {
                 crawl(baseUrl, absoluteUrl, depth - 1); // Recursive call with reduced depth
@@ -71,9 +74,10 @@ async function crawl(baseUrl, currentUrl, depth) {
 
 // Example of using the crawl function
 async function startCrawling(baseUrl) {
-    const content = await crawl(baseUrl, baseUrl, 3); // Start crawling with a depth of 2
+    const content = await crawl(baseUrl, baseUrl, 1); // Start crawling with a depth of 2
     const size = Buffer.byteLength(allContent, 'utf8');
     console.log('Crawled content:', size);
+    return allContent;
 }
 
 
@@ -89,7 +93,7 @@ app.post('/ask', async (req, res) => {
     const { question, context } = req.body;
 
     try {
-        const response = await axios.post('https://gemini-api-endpoint-url', {
+        const response = await axios.post('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}', {
             question: question,
             context: context,
         }, {

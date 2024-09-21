@@ -22,6 +22,7 @@ crawlButton.addEventListener('click', async () => {
         });
         const data = await response.json();
         crawledContent = data.content;
+        console.log("Muskan crawledContent" + crawledContent)
 
         appendMessage("Crawling completed. You can now ask questions.", 'bot');
         askButton.disabled = false;
@@ -34,7 +35,6 @@ askButton.addEventListener('click', async() => {
     console.log("Ask btn clicked");
     const question = questionInput.value;
     if (!question || !crawledContent) return;
-
     appendMessage(`You: ${question}`, 'user');
     try {
         const response = await fetch('/ask', {
@@ -45,7 +45,7 @@ askButton.addEventListener('click', async() => {
             body: JSON.stringify({ question, crawledContent }),
         });
         const answer = await response.json();
-
+        console.log("Muskan answer" + answer);
         askButton.disabled = false;
     } catch (error) {
         appendMessage(`Error: ${error.message}`, 'bot');

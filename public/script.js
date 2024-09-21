@@ -31,11 +31,12 @@ crawlButton.addEventListener('click', async () => {
 });
 
 askButton.addEventListener('click', () => {
+    console.log("Muskan ask clicked");
     const question = questionInput.value;
     if (!question || !crawledContent) return;
 
     appendMessage(`You: ${question}`, 'user');
-
+    console.log("Muskan ask clicked question", question);
     const answer = searchInContent(crawledContent, question);
     appendMessage(`Bot: ${answer}`, 'bot');
 });
@@ -49,7 +50,7 @@ function appendMessage(message, sender) {
 }
 
 function searchInContent(content, question) {
-    console.log("Muskan content yeh aaya hai" + content);
+    console.log("Muskan content yeh aaya hai", content);
     const lowerQuestion = question.toLowerCase();
     const sentences = content.split('. ');
 

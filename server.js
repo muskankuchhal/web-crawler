@@ -17,7 +17,19 @@ async function crawl(url) {
     try {
         const response = await axios.get(url);
         const $ = cheerio.load(response.data);
-        return $('body').text().trim();
+        $('script').remove(); // Remove all <script> tags
+        $('style').remove();  // Remove all <style> tags
+        $('header').remove(); // Remove header sections
+        $('footer').remove(); // Remove footer sections
+        $('.ads, .advertisement').remove(); // Remove elements with class 'ads' or 'advertisement'
+        $('nav').remove(); // Remove navigation bars
+        $('aside').remove(); // Remove sidebars
+
+        // Get the cleaned text content
+        const content = $('body').text().trim();
+
+        // Optionally: Remove excessive whitespace
+        return content.replace(/\s+/g, ' '); // Normalize whitespace
     } catch (error) {
         console.error(`Error fetching ${url}: ${error.message}`);
         return '';

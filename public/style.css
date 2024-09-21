@@ -9,6 +9,8 @@ body {
     max-width: 600px;
     margin: auto;
     background: #fff;
+    background-color: #80a8af;
+    border: 1px solid black;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -21,10 +23,21 @@ h1 {
 #chatbox {
     height: 300px;
     overflow-y: auto;
-    border: 1px solid #ddd;
+    border: 1px solid black;
     padding: 10px;
     margin-bottom: 10px;
     border-radius: 5px;
+    background-color: #c5dade;
+}
+
+#urlInput {
+    border: 1px solid black;
+    background-color: #c5dade;
+}
+
+#questionInput {
+    border: 1px solid black;
+    background-color: #c5dade;
 }
 
 .message {
@@ -54,6 +67,7 @@ button {
     color: white;
     border-radius: 4px;
     cursor: pointer;
+    border: black;
 }
 
 button:disabled {

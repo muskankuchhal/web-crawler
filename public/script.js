@@ -49,6 +49,7 @@ function appendMessage(message, sender) {
 }
 
 function searchInContent(content, question) {
+    console.log("Muskan content yeh aaya hai" + content);
     const lowerQuestion = question.toLowerCase();
     const sentences = content.split('. ');
 
